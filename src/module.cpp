@@ -21,6 +21,7 @@
 #include <numpy/arrayobject.h>
 
 #include <cmath>
+#include <iostream>
 #include "supercluster.hpp"
 
 
@@ -152,12 +153,18 @@ SuperCluster_getClusters(SuperClusterObject *self, PyObject *args, PyObject *kwa
         Py_DECREF(o);
 
         std::set<size_t> childIds = cluster->childIds;
-        PyObject *childIdList = PyList_New(childIds.size());
-        int j = 0;
-        for (auto it = childIds.begin(); it != childIds.end(); ++it) {
-            o = PyLong_FromSize_t(*it);
+        size_t childIdsSize = childIds.size();
+        PyObject *childIdList = PyList_New(childIdsSize);
+
+        size_t j = 0;
+        for (size_t childId : childIds) {
+            o = PyLong_FromSize_t(childId);
             PyList_SET_ITEM(childIdList, j++, o);
             Py_DECREF(o);
+        }
+
+        if (j != childIdsSize) {
+            std::cerr << "error: list size differs from set size: " << j << " != " << childIdsSize << std::endl;
         }
 
         PyDict_SetItem(dict, childIdsKey, childIdList);
