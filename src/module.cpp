@@ -153,22 +153,15 @@ SuperCluster_getClusters(SuperClusterObject *self, PyObject *args, PyObject *kwa
         Py_DECREF(o);
 
         std::set<size_t> childIds = cluster->childIds;
-        size_t childIdsSize = childIds.size();
-        PyObject *childIdList = PyList_New(childIdsSize);
-
+        PyObject *childIdList = PyList_New(childIds.size());
         size_t j = 0;
         for (size_t childId : childIds) {
-            o = PyLong_FromSize_t(0);
+            o = PyLong_FromSize_t(childId);
             PyList_SET_ITEM(childIdList, j++, o);
             Py_DECREF(o);
         }
 
-        if (j != childIdsSize) {
-            std::cerr << "error: list size differs from set size: " << j << " != " << childIdsSize << std::endl;
-        } else {
-            PyDict_SetItem(dict, childIdsKey, childIdList);
-        }
-
+        PyDict_SetItem(dict, childIdsKey, childIdList);
         Py_DECREF(childIdList);
 
         PyList_SET_ITEM(list, i, dict);

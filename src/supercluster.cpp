@@ -101,7 +101,7 @@ std::vector<Cluster*> SuperCluster::cluster(const std::vector<Cluster*> &points,
         double wx = p->point.first * numPoints;
         double wy = p->point.second * numPoints;
 
-        tree->kdbush->within(p->point.first, p->point.second, radius, [&foundNeighbors, &numPoints, &childIds, tree, &wx, &wy, zoom, &i](const std::vector<Cluster*>::size_type id) {
+        tree->kdbush->within(p->point.first, p->point.second, radius, [&foundNeighbors, &numPoints, &childIds, tree, &wx, &wy, zoom, i](const std::vector<Cluster*>::size_type id) {
             Cluster *b = tree->clusters[id];
             if (zoom < b->zoom) {
                 foundNeighbors = true;
