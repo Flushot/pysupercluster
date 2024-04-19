@@ -158,11 +158,9 @@ SuperCluster_getClusters(SuperClusterObject *self, PyObject *args, PyObject *kwa
 
         size_t j = 0;
         for (size_t childId : childIds) {
-            o = PyLong_FromSize_t(childId);
-            if (o != NULL) {
-                PyList_SET_ITEM(childIdList, j++, o);
-                Py_DECREF(o);
-            }
+            o = PyLong_FromSize_t(0);
+            PyList_SET_ITEM(childIdList, j++, o);
+            Py_DECREF(o);
         }
 
         if (j != childIdsSize) {
