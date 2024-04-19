@@ -156,6 +156,7 @@ SuperCluster_getClusters(SuperClusterObject *self, PyObject *args, PyObject *kwa
         PyObject *childIdList = PyList_New(childIds.size());
         size_t j = 0;
         for (size_t childId : childIds) {
+            std::cout << "convert to long: " << childId << std::endl << std::flush;
             o = PyLong_FromSize_t(childId);
             PyList_SET_ITEM(childIdList, j++, o);
             Py_DECREF(o);
