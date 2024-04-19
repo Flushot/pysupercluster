@@ -99,6 +99,7 @@ std::vector<Cluster*> SuperCluster::cluster(const std::vector<Cluster*> &points,
         bool foundNeighbors = false;
         size_t numPoints = p->numPoints;
         std::set<size_t> childIds = p->childIds;
+        childIds.insert(pointId);
         double wx = p->point.first * numPoints;
         double wy = p->point.second * numPoints;
 
@@ -112,7 +113,6 @@ std::vector<Cluster*> SuperCluster::cluster(const std::vector<Cluster*> &points,
 
                 numPoints += b->numPoints;
 
-                childIds.insert(pointId);
                 childIds.insert(visitedId);
                 childIds.insert(b->childIds.begin(), b->childIds.end());
             }
