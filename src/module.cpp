@@ -151,17 +151,17 @@ SuperCluster_getClusters(SuperClusterObject *self, PyObject *args, PyObject *kwa
         PyDict_SetItem(dict, longitudeKey, o);
         Py_DECREF(o);
 
-        // PyObject *childIdList = PyList_New(cluster->childIds.size());
-        // int j = 0;
-        // for (size_t childId : cluster->childIds) {
-        //     o = PyLong_FromSize_t(childId);
-        //     PyList_SET_ITEM(childIdList, j, o);
-        //     Py_DECREF(o);
-        //     ++j;
-        // }
+        std::set<size_t> childIds = cluster->childIds;
+        PyObject *childIdList = PyList_New(childIds.size());
+        int j = 0;
+        for (auto it = childIds.begin(); it != childIds.end(); ++it) {
+            o = PyLong_FromSize_t(*it);
+            PyList_SET_ITEM(childIdList, j++, o);
+            Py_DECREF(o);
+        }
 
-        // PyDict_SetItem(dict, childIdsKey, childIdList);
-        // Py_DECREF(childIdList);
+        PyDict_SetItem(dict, childIdsKey, childIdList);
+        Py_DECREF(childIdList);
 
         PyList_SET_ITEM(list, i, dict);
     }
