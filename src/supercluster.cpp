@@ -114,6 +114,10 @@ std::vector<Cluster*> SuperCluster::cluster(const std::vector<Cluster*> &points,
                 numPoints += b->numPoints;
 
                 childIds.insert(visitedId);
+                if (b->id <= maxPoints) {
+                    childIds.insert(b->id);
+                }
+
                 childIds.insert(b->childIds.begin(), b->childIds.end());
             }
         });
