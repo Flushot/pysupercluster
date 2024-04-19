@@ -19,7 +19,7 @@
 #include "supercluster.hpp"
 
 
-Cluster::Cluster(const Point &_point, size_t _numPoints, std::set<size_t> &_childIds, size_t _id, int _expansionZoom)
+Cluster::Cluster(const Point &_point, size_t _numPoints, const std::set<size_t> &_childIds, size_t _id, int _expansionZoom)
     : point(_point)
     , numPoints(_numPoints)
     , id(_id)
@@ -88,9 +88,10 @@ std::vector<Cluster*> SuperCluster::cluster(const std::vector<Cluster*> &points,
     std::vector<Cluster*> clusters;
     double radius = this->radius / (this->extent * (1 << zoom));
     ClusterTree *tree = trees[zoom + 1];
+    const size_t maxPoints = points.size();
 
-    for (size_t i = 0; i < points.size(); ++i) {
-        Cluster *p = points[i];
+    for (size_t pointId = 0; pointId < maxPoints; ++pointId) {
+        Cluster *p = points[pointId];
         if (p->zoom <= zoom)
             continue;
         p->zoom = zoom;
@@ -101,8 +102,8 @@ std::vector<Cluster*> SuperCluster::cluster(const std::vector<Cluster*> &points,
         double wx = p->point.first * numPoints;
         double wy = p->point.second * numPoints;
 
-        tree->kdbush->within(p->point.first, p->point.second, radius, [&foundNeighbors, &numPoints, &childIds, tree, &wx, &wy, zoom, i](const std::vector<Cluster*>::size_type id) {
-            Cluster *b = tree->clusters[id];
+        tree->kdbush->within(p->point.first, p->point.second, radius, [&foundNeighbors, &numPoints, &childIds, tree, &wx, &wy, zoom, pointId, maxPoints](const std::vector<Cluster*>::size_type visitedId) {
+            Cluster *b = tree->clusters[visitedId];
             if (zoom < b->zoom) {
                 foundNeighbors = true;
                 b->zoom = zoom;
@@ -111,9 +112,17 @@ std::vector<Cluster*> SuperCluster::cluster(const std::vector<Cluster*> &points,
 
                 numPoints += b->numPoints;
 
-                childIds.insert(b->childIds.begin(), b->childIds.end());
-                childIds.insert(i);
-                childIds.insert(id);
+                childIds.insert(pointId); // point
+                childIds.insert(visitedId); // visited
+
+                // child points (excluding clusters)
+                for (size_t childId : b->childIds) {
+                    if (childId < maxPoints) {
+                        childIds.insert(childId);
+                    }
+                }
+
+                // childIds.insert(b->childIds.begin(), b->childIds.end());
             }
         });
 

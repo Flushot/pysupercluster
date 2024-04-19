@@ -22,7 +22,7 @@ using Point = std::pair<double, double>;
 
 class Cluster {
 public:
-    Cluster(const Point &_point, size_t _numPoints, std::set<size_t> &childIds, size_t _id, int _expansionZoom);
+    Cluster(const Point &_point, size_t _numPoints, const std::set<size_t> &childIds, size_t _id, int _expansionZoom);
 
     Point point;
     size_t numPoints; // TODO: remove redundant value
