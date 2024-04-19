@@ -14,15 +14,19 @@
     OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
+#include <set>
+
 #include "kdbush.hpp"
 
 using Point = std::pair<double, double>;
 
 class Cluster {
 public:
-    Cluster(const Point &_point, size_t _numPoints, size_t _id, int _expansionZoom);
+    Cluster(const Point &_point, size_t _numPoints, std::set<size_t> &childIds, size_t _id, int _expansionZoom);
+
     Point point;
-    size_t numPoints;
+    size_t numPoints; // TODO: remove redundant value
+    std::set<size_t> childIds;
     size_t id;
     int zoom;
     int expansionZoom;

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import os
+from warnings import warn
 
 from setuptools import setup, Extension
 from setuptools.command.build_ext import build_ext as _build_ext

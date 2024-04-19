@@ -1,0 +1,11 @@
+# IDE
+/.idea/
+/*.iml
+
+# Python
+*.egg-info/
+
+# C
+*.so
+*.o
+#.a
