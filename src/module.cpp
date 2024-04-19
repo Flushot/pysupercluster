@@ -171,6 +171,7 @@ SuperCluster_getClusters(SuperClusterObject *self, PyObject *args, PyObject *kwa
     Py_DECREF(idKey);
     Py_DECREF(latitudeKey);
     Py_DECREF(longitudeKey);
+    Py_DECREF(childIdsKey);
 
     return list;
 }
