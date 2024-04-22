@@ -33,6 +33,7 @@ public:
 };
 
 
+// kd-tree of clusters for a given zoom level
 class ClusterTree {
 public:
     ClusterTree(const std::vector<Cluster*> &clusters);

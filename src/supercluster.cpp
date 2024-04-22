@@ -15,6 +15,7 @@
 */
 
 #include <algorithm>
+#include <iostream>
 
 #include "supercluster.hpp"
 
@@ -89,6 +90,7 @@ std::vector<Cluster*> SuperCluster::cluster(const std::vector<Cluster*> &points,
     double radius = this->radius / (this->extent * (1 << zoom));
     ClusterTree *tree = trees[zoom + 1];
     const size_t maxPoints = points.size();
+    std::set<size_t> visitedPoints;
 
     for (size_t pointId = 0; pointId < maxPoints; ++pointId) {
         Cluster *p = points[pointId];
@@ -100,12 +102,20 @@ std::vector<Cluster*> SuperCluster::cluster(const std::vector<Cluster*> &points,
         size_t numPoints = p->numPoints;
         double wx = p->point.first * numPoints;
         double wy = p->point.second * numPoints;
-        std::set<size_t> childIds = p->childIds;
-        std::set<size_t> nextChildIds;
-        nextChildIds.insert(childIds.begin(), childIds.end());
-        nextChildIds.insert(pointId);
 
-        tree->kdbush->within(p->point.first, p->point.second, radius, [&foundNeighbors, &numPoints, &nextChildIds, tree, &wx, &wy, zoom, pointId, maxPoints](const std::vector<Cluster*>::size_type visitedId) {
+        // Copy childIds
+        std::set<size_t> nextChildIds;
+        // nextChildIds.insert(p->childIds.begin(), p->childIds.end());
+
+        if (visitedPoints.find(pointId) == visitedPoints.end()) {
+            // pointId not in visitedPoints
+            nextChildIds.insert(pointId);
+            visitedPoints.insert(pointId);
+        }
+
+        std::cerr << pointId << " (zoom: " << zoom << "): ";
+
+        tree->kdbush->within(p->point.first, p->point.second, radius, [&foundNeighbors, &numPoints, &nextChildIds, &visitedPoints, tree, &wx, &wy, zoom, pointId, maxPoints](const std::vector<Cluster*>::size_type visitedId) {
             Cluster *b = tree->clusters[visitedId];
             if (zoom < b->zoom) {
                 foundNeighbors = true;
@@ -115,22 +125,47 @@ std::vector<Cluster*> SuperCluster::cluster(const std::vector<Cluster*> &points,
 
                 numPoints += b->numPoints;
 
-                //nextChildIds.insert(visitedId);
-                if (b->id <= maxPoints) {
-                    nextChildIds.insert(b->id);
+                if (visitedPoints.find(visitedId) == visitedPoints.end()) {
+                    nextChildIds.insert(visitedId);
+                    visitedPoints.insert(visitedId);
+                    std::cerr << visitedId << " (visited), ";
                 }
 
-                nextChildIds.insert(b->childIds.begin(), b->childIds.end());
+                if (b->id < maxPoints) {
+                    if (visitedPoints.find(b->id) == visitedPoints.end()) {
+                        // b->id not in clustered_points
+                        nextChildIds.insert(b->id);
+                        visitedPoints.insert(b->id);
+                        std::cerr << b->id << " (b->id), ";
+                    }
+                }
+
+                for (size_t childId : b->childIds) {
+                    if (childId < maxPoints && visitedPoints.find(childId) == visitedPoints.end()) {
+                        nextChildIds.insert(childId);
+                        visitedPoints.insert(b->id);
+                        std::cerr << childId << " (childId), ";
+                    }
+                }
+
+                // nextChildIds.insert(b->childIds.begin(), b->childIds.end());
             }
         });
 
         if (foundNeighbors) {
-            Cluster *cluster = new Cluster(Point(wx / numPoints, wy / numPoints), numPoints, nextChildIds, all_clusters.size(), zoom + 1);
+            // Cluster
+            size_t clusterId = all_clusters.size();
+            std::cerr << "new_cluster: " << clusterId;
+            Cluster *cluster = new Cluster(Point(wx / numPoints, wy / numPoints), numPoints, nextChildIds, clusterId, zoom + 1);
             clusters.push_back(cluster);
             all_clusters.push_back(cluster);
         } else {
+            // Point
+            std::cerr << "point";
             clusters.push_back(p);
         }
+
+        std::cerr << std::endl;
     }
 
     return clusters;
